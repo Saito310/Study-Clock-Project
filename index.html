@@ -76,7 +76,7 @@
     align-items: center;
   }
 
-  /* ===== 時計表示 ===== */
+  /* ===== 時計 ===== */
   #time {
     font-size: 18vw;
     font-weight: 800;
@@ -96,10 +96,36 @@
     color: #777;
   }
 
+  /* ===== 勉強管理 ===== */
+  .study-box {
+    text-align: center;
+  }
+
+  .study-time {
+    font-size: 6vw;
+    font-weight: bold;
+    margin: 20px 0;
+  }
+
+  .study-buttons button {
+    font-size: 20px;
+    padding: 12px 24px;
+    margin: 10px;
+    cursor: pointer;
+  }
+
+  .total-time {
+    margin-top: 30px;
+    font-size: 1.6vw;
+    color: #555;
+  }
+
   @media (max-width: 768px) {
     #time { font-size: 22vw; }
     #date { font-size: 5vw; }
     #sub { font-size: 3.5vw; }
+    .study-time { font-size: 14vw; }
+    .total-time { font-size: 4vw; }
   }
 </style>
 </head>
@@ -122,9 +148,22 @@
   <div id="sub">Study Clock</div>
 </div>
 
-<!-- ===== 勉強管理ページ（空） ===== -->
+<!-- ===== 勉強管理ページ ===== -->
 <div id="study" class="page">
-  <h1 style="font-size:3vw;">勉強管理（準備中）</h1>
+  <div class="study-box">
+    <h1>勉強管理</h1>
+
+    <div class="study-time" id="currentStudyTime">00:00:00</div>
+
+    <div class="study-buttons">
+      <button onclick="startStudy()">▶ 開始</button>
+      <button onclick="stopStudy()">⏸ 停止</button>
+    </div>
+
+    <div class="total-time">
+      今日の合計勉強時間：<span id="totalStudyTime">00:00:00</span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -155,7 +194,7 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-/* ===== メニュー制御 ===== */
+/* ===== メニュー ===== */
 const menuBtn = document.getElementById("menu-btn");
 const sidebar = document.getElementById("sidebar");
 
@@ -167,6 +206,44 @@ function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   sidebar.classList.remove("open");
+}
+
+/* ===== 勉強ストップウォッチ（保存なし） ===== */
+let studyStartTime = null;
+let studyInterval = null;
+let totalStudySeconds = 0;
+
+function startStudy() {
+  if (studyInterval) return;
+
+  studyStartTime = Date.now();
+  studyInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - studyStartTime) / 1000);
+    document.getElementById("currentStudyTime").textContent =
+      formatTime(elapsed);
+  }, 1000);
+}
+
+function stopStudy() {
+  if (!studyInterval) return;
+
+  clearInterval(studyInterval);
+  studyInterval = null;
+
+  const sessionSeconds = Math.floor((Date.now() - studyStartTime) / 1000);
+  totalStudySeconds += sessionSeconds;
+
+  document.getElementById("totalStudyTime").textContent =
+    formatTime(totalStudySeconds);
+
+  document.getElementById("currentStudyTime").textContent = "00:00:00";
+}
+
+function formatTime(sec) {
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
 }
 </script>
 
