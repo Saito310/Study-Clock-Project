@@ -6,245 +6,231 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-    background: #ffffff;
-    color: #222;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+  "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  background:#fff;
+  color:#222;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+}
 
-  /* ===== メニューボタン ===== */
-  #menu-btn {
-    position: fixed;
-    top: 20px;
-    right: 24px;
-    font-size: 28px;
-    cursor: pointer;
-    z-index: 1001;
-    user-select: none;
-  }
+/* ===== メニュー ===== */
+#menu-btn{
+  position:fixed;
+  top:20px;
+  right:24px;
+  font-size:28px;
+  cursor:pointer;
+  z-index:1001;
+}
 
-  /* ===== サイドバー ===== */
-  #sidebar {
-    position: fixed;
-    top: 0;
-    right: -280px;
-    width: 280px;
-    height: 100vh;
-    background: #f7f7f7;
-    box-shadow: -4px 0 12px rgba(0,0,0,0.1);
-    transition: right 0.3s ease;
-    padding: 30px 20px;
-    z-index: 1000;
-  }
+#sidebar{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:280px;
+  height:100vh;
+  background:#f7f7f7;
+  box-shadow:-4px 0 12px rgba(0,0,0,.1);
+  transition:right .3s ease;
+  padding:30px 20px;
+  z-index:1000;
+}
+#sidebar.open{ right:0; }
 
-  #sidebar.open {
-    right: 0;
-  }
+.menu-item{
+  font-size:20px;
+  padding:14px 0;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+}
 
-  .menu-item {
-    font-size: 20px;
-    padding: 14px 0;
-    cursor: pointer;
-    border-bottom: 1px solid #ddd;
-  }
+/* ===== ページ ===== */
+.page{
+  width:100%;
+  height:100%;
+  display:none;
+}
+.page.active{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
 
-  .menu-item:hover {
-    opacity: 0.7;
-  }
+/* ===== 時計 ===== */
+#time{
+  font-size:18vw;
+  font-weight:800;
+}
+#date{
+  margin-top:20px;
+  font-size:2.2vw;
+  color:#444;
+}
+#sub{
+  margin-top:6px;
+  font-size:1.4vw;
+  color:#777;
+}
 
-  /* ===== ページ ===== */
-  .page {
-    width: 100%;
-    height: 100%;
-    display: none;
-  }
-
-  .page.active {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* ===== 時計 ===== */
-  #time {
-    font-size: 18vw;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    line-height: 1;
-  }
-
-  #date {
-    margin-top: 20px;
-    font-size: 2.2vw;
-    color: #444;
-  }
-
-  #sub {
-    margin-top: 6px;
-    font-size: 1.4vw;
-    color: #777;
-  }
-
-  /* ===== 勉強管理 ===== */
-  .study-box {
-    text-align: center;
-  }
-
-  .study-time {
-    font-size: 6vw;
-    font-weight: bold;
-    margin: 20px 0;
-  }
-
-  .study-buttons button {
-    font-size: 20px;
-    padding: 12px 24px;
-    margin: 10px;
-    cursor: pointer;
-  }
-
-  .total-time {
-    margin-top: 30px;
-    font-size: 1.6vw;
-    color: #555;
-  }
-
-  @media (max-width: 768px) {
-    #time { font-size: 22vw; }
-    #date { font-size: 5vw; }
-    #sub { font-size: 3.5vw; }
-    .study-time { font-size: 14vw; }
-    .total-time { font-size: 4vw; }
-  }
+/* ===== 勉強管理 ===== */
+.study-time{
+  font-size:6vw;
+  font-weight:bold;
+  margin:20px 0;
+}
+.study-buttons button{
+  font-size:20px;
+  padding:12px 24px;
+  margin:10px;
+}
+.total-time{
+  margin-top:30px;
+  font-size:1.6vw;
+  color:#555;
+}
 </style>
 </head>
 
 <body>
 
-<!-- メニューボタン -->
 <div id="menu-btn">☰</div>
 
-<!-- サイドバー -->
 <div id="sidebar">
-  <div class="menu-item" onclick="showPage('clock')">時間</div>
-  <div class="menu-item" onclick="showPage('study')">勉強管理</div>
+  <div class="menu-item" data-page="clock">時間</div>
+  <div class="menu-item" data-page="study">勉強管理</div>
 </div>
 
-<!-- ===== 時間ページ ===== -->
 <div id="clock" class="page active">
   <div id="time">00:00:00</div>
   <div id="date">----</div>
   <div id="sub">Study Clock</div>
 </div>
 
-<!-- ===== 勉強管理ページ ===== -->
 <div id="study" class="page">
-  <div class="study-box">
-    <h1>勉強管理</h1>
+  <h1>勉強管理</h1>
+  <div class="study-time" id="currentStudyTime">00:00:00</div>
 
-    <div class="study-time" id="currentStudyTime">00:00:00</div>
+  <div class="study-buttons">
+    <button id="startBtn">▶ 開始</button>
+    <button id="stopBtn">⏸ 停止</button>
+  </div>
 
-    <div class="study-buttons">
-      <button onclick="startStudy()">▶ 開始</button>
-      <button onclick="stopStudy()">⏸ 停止</button>
-    </div>
-
-    <div class="total-time">
-      今日の合計勉強時間：<span id="totalStudyTime">00:00:00</span>
-    </div>
+  <div class="total-time">
+    今日の合計勉強時間：
+    <span id="totalStudyTime">00:00:00</span>
   </div>
 </div>
 
 <script>
-/* ===== 時計 ===== */
-function updateClock() {
-  const now = new Date();
+window.onload = () => {
 
-  const h = String(now.getHours()).padStart(2, '0');
-  const m = String(now.getMinutes()).padStart(2, '0');
-  const s = String(now.getSeconds()).padStart(2, '0');
-  document.getElementById("time").textContent = `${h}:${m}:${s}`;
+  /* ===== DOM取得（完全明示） ===== */
+  const menuBtn = document.getElementById("menu-btn");
+  const sidebar = document.getElementById("sidebar");
+  const pages = document.querySelectorAll(".page");
 
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
+  const timeEl = document.getElementById("time");
+  const dateEl = document.getElementById("date");
 
-  const weekNames = ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"];
-  const weekDay = weekNames[now.getDay()];
+  const currentStudyTimeEl = document.getElementById("currentStudyTime");
+  const totalStudyTimeEl = document.getElementById("totalStudyTime");
 
-  const firstDay = new Date(year, 0, 1);
-  const pastDays = Math.floor((now - firstDay) / 86400000);
-  const weekNumber = Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+  const startBtn = document.getElementById("startBtn");
+  const stopBtn = document.getElementById("stopBtn");
 
-  document.getElementById("date").textContent =
-    `${year}年${month}月${day}日, ${weekDay}, 第${weekNumber}週`;
-}
+  /* ===== 時計 ===== */
+  function updateClock(){
+    const n = new Date();
+    timeEl.textContent =
+      String(n.getHours()).padStart(2,"0")+":"+
+      String(n.getMinutes()).padStart(2,"0")+":"+
+      String(n.getSeconds()).padStart(2,"0");
 
-updateClock();
-setInterval(updateClock, 1000);
+    const w = ["日","月","火","水","木","金","土"][n.getDay()];
+    dateEl.textContent =
+      `${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 ${w}曜日`;
+  }
+  updateClock();
+  setInterval(updateClock,1000);
 
-/* ===== メニュー ===== */
-const menuBtn = document.getElementById("menu-btn");
-const sidebar = document.getElementById("sidebar");
+  /* ===== メニュー ===== */
+  menuBtn.addEventListener("click",()=>{
+    sidebar.classList.toggle("open");
+  });
 
-menuBtn.onclick = () => {
-  sidebar.classList.toggle("open");
+  document.querySelectorAll(".menu-item").forEach(item=>{
+    item.addEventListener("click",()=>{
+      pages.forEach(p=>p.classList.remove("active"));
+      document.getElementById(item.dataset.page).classList.add("active");
+      sidebar.classList.remove("open");
+    });
+  });
+
+  /* ===== localStorage 勉強管理 ===== */
+  const KEY = "study_time";
+  let startTime = null;
+  let timer = null;
+  let totalSec = 0;
+
+  function today(){
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
+
+  function format(sec){
+    const h = String(Math.floor(sec/3600)).padStart(2,"0");
+    const m = String(Math.floor(sec%3600/60)).padStart(2,"0");
+    const s = String(sec%60).padStart(2,"0");
+    return `${h}:${m}:${s}`;
+  }
+
+  function load(){
+    const data = JSON.parse(localStorage.getItem(KEY));
+    if(data && data.date === today()){
+      totalSec = data.sec;
+    } else {
+      totalSec = 0;
+      save();
+    }
+    totalStudyTimeEl.textContent = format(totalSec);
+  }
+
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify({
+      date: today(),
+      sec: totalSec
+    }));
+  }
+
+  startBtn.addEventListener("click",()=>{
+    if(timer) return;
+    startTime = Date.now();
+    timer = setInterval(()=>{
+      const s = Math.floor((Date.now()-startTime)/1000);
+      currentStudyTimeEl.textContent = format(s);
+    },1000);
+  });
+
+  stopBtn.addEventListener("click",()=>{
+    if(!timer) return;
+    clearInterval(timer);
+    timer = null;
+
+    totalSec += Math.floor((Date.now()-startTime)/1000);
+    save();
+
+    currentStudyTimeEl.textContent = "00:00:00";
+    totalStudyTimeEl.textContent = format(totalSec);
+  });
+
+  load();
 };
-
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  sidebar.classList.remove("open");
-}
-
-/* ===== 勉強ストップウォッチ（保存なし） ===== */
-let studyStartTime = null;
-let studyInterval = null;
-let totalStudySeconds = 0;
-
-function startStudy() {
-  if (studyInterval) return;
-
-  studyStartTime = Date.now();
-  studyInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - studyStartTime) / 1000);
-    document.getElementById("currentStudyTime").textContent =
-      formatTime(elapsed);
-  }, 1000);
-}
-
-function stopStudy() {
-  if (!studyInterval) return;
-
-  clearInterval(studyInterval);
-  studyInterval = null;
-
-  const sessionSeconds = Math.floor((Date.now() - studyStartTime) / 1000);
-  totalStudySeconds += sessionSeconds;
-
-  document.getElementById("totalStudyTime").textContent =
-    formatTime(totalStudySeconds);
-
-  document.getElementById("currentStudyTime").textContent = "00:00:00";
-}
-
-function formatTime(sec) {
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
 </script>
 
 </body>
