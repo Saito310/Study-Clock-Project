@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
@@ -27,7 +27,6 @@ body{
   cursor:pointer;
   z-index:1001;
 }
-
 #sidebar{
   position:fixed;
   top:0;
@@ -40,8 +39,7 @@ body{
   padding:30px 20px;
   z-index:1000;
 }
-#sidebar.open{ right:0; }
-
+#sidebar.open{right:0}
 .menu-item{
   font-size:20px;
   padding:14px 0;
@@ -50,11 +48,7 @@ body{
 }
 
 /* ===== ページ ===== */
-.page{
-  width:100%;
-  height:100%;
-  display:none;
-}
+.page{display:none;width:100%;height:100%}
 .page.active{
   display:flex;
   flex-direction:column;
@@ -63,37 +57,14 @@ body{
 }
 
 /* ===== 時計 ===== */
-#time{
-  font-size:18vw;
-  font-weight:800;
-}
-#date{
-  margin-top:20px;
-  font-size:2.2vw;
-  color:#444;
-}
-#sub{
-  margin-top:6px;
-  font-size:1.4vw;
-  color:#777;
-}
+#time{font-size:18vw;font-weight:800}
+#date{margin-top:20px;font-size:2.2vw;color:#444}
+#sub{margin-top:6px;font-size:1.4vw;color:#777}
 
 /* ===== 勉強管理 ===== */
-.study-time{
-  font-size:6vw;
-  font-weight:bold;
-  margin:20px 0;
-}
-.study-buttons button{
-  font-size:20px;
-  padding:12px 24px;
-  margin:10px;
-}
-.total-time{
-  margin-top:30px;
-  font-size:1.6vw;
-  color:#555;
-}
+.study-time{font-size:6vw;font-weight:bold;margin:20px 0}
+.study-buttons button{font-size:20px;padding:12px 24px;margin:10px}
+.total-time{margin-top:30px;font-size:1.6vw;color:#555}
 </style>
 </head>
 
@@ -130,7 +101,7 @@ body{
 <script>
 window.onload = () => {
 
-  /* ===== DOM取得（完全明示） ===== */
+  /* ===== DOM ===== */
   const menuBtn = document.getElementById("menu-btn");
   const sidebar = document.getElementById("sidebar");
   const pages = document.querySelectorAll(".page");
@@ -146,90 +117,117 @@ window.onload = () => {
 
   /* ===== 時計 ===== */
   function updateClock(){
-    const n = new Date();
-    timeEl.textContent =
+    const n=new Date();
+    timeEl.textContent=
       String(n.getHours()).padStart(2,"0")+":"+
       String(n.getMinutes()).padStart(2,"0")+":"+
       String(n.getSeconds()).padStart(2,"0");
-
-    const w = ["日","月","火","水","木","金","土"][n.getDay()];
-    dateEl.textContent =
+    const w=["日","月","火","水","木","金","土"][n.getDay()];
+    dateEl.textContent=
       `${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 ${w}曜日`;
   }
   updateClock();
   setInterval(updateClock,1000);
 
   /* ===== メニュー ===== */
-  menuBtn.addEventListener("click",()=>{
-    sidebar.classList.toggle("open");
-  });
-
+  menuBtn.onclick=()=>sidebar.classList.toggle("open");
   document.querySelectorAll(".menu-item").forEach(item=>{
-    item.addEventListener("click",()=>{
+    item.onclick=()=>{
       pages.forEach(p=>p.classList.remove("active"));
       document.getElementById(item.dataset.page).classList.add("active");
       sidebar.classList.remove("open");
-    });
+    };
   });
 
-  /* ===== localStorage 勉強管理 ===== */
-  const KEY = "study_time";
-  let startTime = null;
-  let timer = null;
-  let totalSec = 0;
+  /* ===== 勉強管理 ===== */
+  const KEY="study_time";
+  let startTime=null;
+  let timer=null;
+  let totalSec=0;
 
   function today(){
-    const d = new Date();
+    const d=new Date();
     return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   }
-
   function format(sec){
-    const h = String(Math.floor(sec/3600)).padStart(2,"0");
-    const m = String(Math.floor(sec%3600/60)).padStart(2,"0");
-    const s = String(sec%60).padStart(2,"0");
+    const h=String(Math.floor(sec/3600)).padStart(2,"0");
+    const m=String(Math.floor(sec%3600/60)).padStart(2,"0");
+    const s=String(sec%60).padStart(2,"0");
     return `${h}:${m}:${s}`;
   }
 
+  function save(data){
+    localStorage.setItem(KEY,JSON.stringify(data));
+  }
+
   function load(){
-    const data = JSON.parse(localStorage.getItem(KEY));
-    if(data && data.date === today()){
-      totalSec = data.sec;
-    } else {
-      totalSec = 0;
-      save();
+    const data=JSON.parse(localStorage.getItem(KEY));
+    if(!data||data.date!==today()){
+      save({date:today(),total:0,studying:false,start:0});
+      totalSec=0;
+      return;
     }
-    totalStudyTimeEl.textContent = format(totalSec);
+    totalSec=data.total;
+    totalStudyTimeEl.textContent=format(totalSec);
+
+    if(data.studying){
+      startTime=data.start;
+      resume();
+    }
   }
 
-  function save(){
-    localStorage.setItem(KEY, JSON.stringify({
-      date: today(),
-      sec: totalSec
-    }));
-  }
+  function resume(){
+  timer = setInterval(()=>{
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    currentStudyTimeEl.textContent = format(elapsed);
+    totalStudyTimeEl.textContent = format(totalSec + elapsed);
+  },1000);
+}
 
-  startBtn.addEventListener("click",()=>{
+
+  startBtn.onclick=()=>{
     if(timer) return;
-    startTime = Date.now();
-    timer = setInterval(()=>{
-      const s = Math.floor((Date.now()-startTime)/1000);
-      currentStudyTimeEl.textContent = format(s);
-    },1000);
-  });
+    startTime=Date.now();
+    resume();
+    save({date:today(),total:totalSec,studying:true,start:startTime});
+  };
 
-  stopBtn.addEventListener("click",()=>{
+  stopBtn.onclick=()=>{
     if(!timer) return;
     clearInterval(timer);
-    timer = null;
-
-    totalSec += Math.floor((Date.now()-startTime)/1000);
-    save();
-
-    currentStudyTimeEl.textContent = "00:00:00";
-    totalStudyTimeEl.textContent = format(totalSec);
-  });
+    timer=null;
+    totalSec+=Math.floor((Date.now()-startTime)/1000);
+    startTime=null;
+    currentStudyTimeEl.textContent="00:00:00";
+    totalStudyTimeEl.textContent=format(totalSec);
+    save({date:today(),total:totalSec,studying:false,start:0});
+  };
 
   load();
+
+  /* ===== 自動保存（①＋②） ===== */
+  setInterval(()=>{
+    if(timer&&startTime){
+      save({
+        date:today(),
+        total:totalSec,
+        studying:true,
+        start:startTime
+      });
+    }
+  },3000);
+
+  window.addEventListener("beforeunload",()=>{
+    if(timer&&startTime){
+      save({
+        date:today(),
+        total:totalSec,
+        studying:true,
+        start:startTime
+      });
+    }
+  });
+
 };
 </script>
 
